@@ -1,0 +1,51 @@
+version: '3'
+
+networks:
+  url-shortener:
+    driver: bridge
+
+services:
+  backend-api:
+    build:
+      context: ./backend-api
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/usr/src/app
+    environment:
+      - NODE_ENV=production
+    networks:
+      - url-shortener
+  frontend:
+    build:
+      context: ./frontend-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/usr/src/app
+    environment:
+      - NODE_ENV=production
+      - WATCHPACK_POLLING=true 
+    networks:
+      - url-shortener
+  redis:
+    image: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: urlshortener
+    ports:
+      - "5432:5432"
+    networks:
+      - url-shortener
