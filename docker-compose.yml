@@ -14,20 +14,22 @@ services:
       - redis
     ports:
       - "8080:8080"
-    volumes:
-      - ./app:/usr/src/app
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
     networks:
       - url-shortener
+    # volumes:
+      # - .:/usr/src/app
+    #   - /usr/src/app/node_modules
   frontend:
     build:
       context: ./frontend-app
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      - ./app:/usr/src/app
+    # volumes:
+      # - .:/app
+    #   - /app/node_modules
     environment:
       - NODE_ENV=production
       - WATCHPACK_POLLING=true 
