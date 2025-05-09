@@ -51,7 +51,7 @@ lerna-debug.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.development.local
+!.env.development
 
 # vercel
 .vercel
