@@ -9,12 +9,23 @@ import { RootLayout } from './RootLayout';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+const routes = [
+  {
+    path: '/*',
+    element: <RootLayout><LandingPage /></RootLayout>,
+  }
+]
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/*" element={<RootLayout><LandingPage /></RootLayout>} />
-
+        {routes.map((route, index) => (
+          <Route
+            key={index}
+            path={route.path}
+            element={route.element}
+          />
+        ))}
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
