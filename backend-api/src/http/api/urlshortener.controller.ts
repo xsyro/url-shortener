@@ -8,14 +8,21 @@ export class UrlShortenerController {
   constructor(private readonly urlShortenerService: URLShortenerService) {}
 
   @Post('/api/encode')
-  async encode(@Body() body: { url: string }) {
+  async encode(@Body() body: { url: string }, @Res() res: Response) {
     const { url } = body;
-    return this.urlShortenerService.generateShortUrl(url);
+    const resp = await this.urlShortenerService.createShortUrl(url);
+    if ('statusCode' in resp) {
+      return res.status(resp.statusCode).json(resp);
+    } else {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: 'An error occurred' });
+    }
   }
 
   @Post('/api/decode')
   async decode(@Body('shortUrl') shortUrl: string) {
-    return this.urlShortenerService.getOriginalUrl(shortUrl);
+    return this.urlShortenerService.decode(shortUrl);
   }
 
   @Get('/api/statistic/:url_path')
@@ -33,9 +40,9 @@ export class UrlShortenerController {
 
   @Get('/:url_path')
   async redirect(@Param('url_path') urlPath: string, @Res() res: Response) {
-    const longUrl = await this.urlShortenerService.getOriginalUrl(urlPath);
+    const longUrl = await this.urlShortenerService.decode(urlPath);
     if (longUrl) {
-      return res.redirect(longUrl.url);
+      return res.redirect(longUrl);
     } else {
       return res.status(HttpStatus.NOT_FOUND).send('URL not found');
     }

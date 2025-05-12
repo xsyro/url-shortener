@@ -1,20 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import crypto from 'crypto';
+import { UrlEntity } from 'src/db/entities/url.entity';
 
-import { UrlEntry } from 'src/db/entities/url.entity';
 import { Repository } from 'typeorm';
+import { validateUrl } from '../utils/validate.util';
+import { ConfigService } from '@nestjs/config';
+import { UrlIdGeneratorService } from './urlidgenerator.service';
+import { CreateUrlBodyResponse } from '../payload/url.body';
 
 @Injectable()
 export class URLShortenerService {
   constructor(
-    @InjectRepository(UrlEntry)
-    private urlEntryRepository: Repository<UrlEntry>,
+    @InjectRepository(UrlEntity)
+    private urlEntityRepository: Repository<UrlEntity>,
+    private configService: ConfigService,
+    private urlIdGeneratorService: UrlIdGeneratorService,
   ) {}
 
-  async listAll(page: number = 1, limit: number = 10): Promise<UrlEntry[]> {
+  async listAll(page: number = 1, limit: number = 10): Promise<UrlEntity[]> {
     const skip = (page - 1) * limit;
-    return this.urlEntryRepository.find({
+    return this.urlEntityRepository.find({
       order: {
         createdAt: 'DESC',
       },
@@ -28,26 +33,41 @@ export class URLShortenerService {
     throw new Error('Method not implemented.');
   }
 
-  async generateShortUrl(originalUrl: string): Promise<UrlEntry> {
-    const hash = crypto.createHash('sha256').update(originalUrl).digest('hex');
-    const shortUrl = hash.substring(0, 6);
-    const existingEntry = this.urlEntryRepository.findOneBy({
-      shortUrl: shortUrl,
+  async createShortUrl(originalUrl: string): Promise<CreateUrlBodyResponse> {
+    if (!validateUrl(originalUrl)) {
+      return new Error('Invalid URL');
+    }
+
+    const baseUrl = this.configService.get<string>('BASE_URL');
+
+    const existingEntry = await this.urlEntityRepository.findOneBy({
+      url: originalUrl,
     });
     if (existingEntry) {
-      return this.generateShortUrl(originalUrl);
+      return {
+        url: existingEntry.url,
+        shortUrl: `${baseUrl}/${existingEntry.shortUrlId}`,
+        clicks: existingEntry.clicks,
+        statusCode: 200,
+      };
     }
-    const newEntry = this.urlEntryRepository.create({
+    const shortUrlId = await this.urlIdGeneratorService.generateUniqueId();
+    const newEntry = {
       url: originalUrl,
-      shortUrl: shortUrl,
+      shortUrlId: shortUrlId,
       clicks: 0,
       createdAt: new Date(),
-    });
-    this.urlEntryRepository.save(newEntry);
-    return newEntry;
+    };
+    await this.urlEntityRepository.save(newEntry);
+    return {
+      url: newEntry.url,
+      shortUrl: `${baseUrl}/${newEntry.shortUrlId}`,
+      clicks: newEntry.clicks,
+      statusCode: 201,
+    };
   }
 
-  async getOriginalUrl(shortUrl: string): Promise<UrlEntry | null> {
+  async decode(shortUrl: string): Promise<string | null> {
     // const mapping = this.urlDatabase.get(shortUrl);
     // return mapping ? mapping.originalUrl : null;
     console.log(shortUrl);
