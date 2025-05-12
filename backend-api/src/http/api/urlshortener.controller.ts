@@ -46,7 +46,7 @@ export class UrlShortenerController {
       return res.status(HttpStatus.BAD_REQUEST).send('Invalid URL');
     }
     if ('url' in urlreponse) {
-      return res.redirect(urlreponse.url);
+      return res.redirect(301, urlreponse.url);
     } else {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
