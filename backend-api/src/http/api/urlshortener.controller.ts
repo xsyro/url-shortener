@@ -21,7 +21,8 @@ export class UrlShortenerController {
   }
 
   @Post('/api/decode')
-  async decode(@Body('shortUrl') shortUrl: string) {
+  async decode(@Body() body: { shortUrl: string }) {
+    const { shortUrl } = body;
     return this.urlShortenerService.getGeneratedUrl(shortUrl);
   }
 
