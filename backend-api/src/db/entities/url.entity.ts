@@ -5,7 +5,7 @@ export class UrlEntry {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'longtext', nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   url: string;
 
   @Column({ type: 'varchar', length: 255 })
