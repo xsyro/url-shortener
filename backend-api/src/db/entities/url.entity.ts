@@ -15,7 +15,7 @@ export class UrlEntity {
   shortUrl: string;
 
   @Column({ type: 'int', default: 0, nullable: false })
-  clicks: number;
+  clicks?: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

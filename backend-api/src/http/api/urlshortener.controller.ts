@@ -2,7 +2,6 @@ import { Controller } from '@nestjs/common';
 import { URLShortenerService } from '../services/urlshortener.services';
 import { Get, Post, Param, Body, Res, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
-import { validateUrl } from '../utils/validate.util';
 
 @Controller()
 export class UrlShortenerController {
@@ -42,9 +41,6 @@ export class UrlShortenerController {
   @Get('/:url_path')
   async redirect(@Param('url_path') urlPath: string, @Res() res: Response) {
     const urlreponse = await this.urlShortenerService.getGeneratedUrl(urlPath);
-    if (!validateUrl(urlPath)) {
-      return res.status(HttpStatus.BAD_REQUEST).send('Invalid URL');
-    }
     if ('url' in urlreponse) {
       return res.redirect(301, urlreponse.url);
     } else {

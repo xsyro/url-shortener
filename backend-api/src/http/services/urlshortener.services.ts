@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { validateUrl } from '../utils/validate.util';
 import { ConfigService } from '@nestjs/config';
 import { UrlIdGeneratorService } from './urlidgenerator.service';
-import { UrlBodyResponse } from '../payload/url.body';
+import { UrlBodyResponse, UrlStatsResponseBody } from '../payload/url.body';
 
 @Injectable()
 export class URLShortenerService {
@@ -28,9 +28,19 @@ export class URLShortenerService {
     });
   }
 
-  async getStatistics(urlPath: string) {
-    console.log(urlPath);
-    throw new Error('Method not implemented.');
+  async getStatistics(urlPath: string): Promise<UrlStatsResponseBody | null> {
+    const mapping = await this.urlEntityRepository.findOne({
+      where: [{ shortUrlId: urlPath }, { shortUrl: urlPath }],
+    });
+    if (mapping) {
+      return {
+        shortUrlId: mapping.shortUrlId,
+        clicks: mapping.clicks,
+        createdAt: mapping.createdAt,
+        lastUpdatedAt: mapping.updatedAt,
+      };
+    }
+    return null;
   }
 
   async createShortUrl(originalUrl: string): Promise<UrlBodyResponse> {
@@ -47,7 +57,6 @@ export class URLShortenerService {
       return {
         url: existingEntry.url,
         shortUrl: `${baseUrl}/${existingEntry.shortUrlId}`,
-        clicks: existingEntry.clicks,
         statusCode: 200,
       };
     }
@@ -56,14 +65,12 @@ export class URLShortenerService {
       url: originalUrl,
       shortUrlId: shortUrlId,
       shortUrl: `${baseUrl}/${shortUrlId}`,
-      clicks: 0,
       createdAt: new Date(),
     };
     await this.urlEntityRepository.save(newEntry);
     return {
       url: newEntry.url,
       shortUrl: `${baseUrl}/${newEntry.shortUrlId}`,
-      clicks: newEntry.clicks,
       statusCode: 201,
     };
   }
@@ -75,14 +82,13 @@ export class URLShortenerService {
     if (mapping) {
       // Increment the click count
       await this.urlEntityRepository.increment(
-        { shortUrlId: shortUrl },
+        { shortUrlId: mapping.shortUrlId },
         'clicks',
         1,
       );
       return {
         url: mapping.url,
         shortUrl: `${this.configService.get<string>('BASE_URL')}/${mapping.shortUrlId}`,
-        clicks: mapping.clicks,
         statusCode: 200,
       };
     }
