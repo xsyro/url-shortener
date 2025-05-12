@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { validateUrl } from '../utils/validate.util';
 import { ConfigService } from '@nestjs/config';
 import { UrlIdGeneratorService } from './urlidgenerator.service';
-import { CreateUrlBodyResponse } from '../payload/url.body';
+import { UrlBodyResponse } from '../payload/url.body';
 
 @Injectable()
 export class URLShortenerService {
@@ -33,7 +33,7 @@ export class URLShortenerService {
     throw new Error('Method not implemented.');
   }
 
-  async createShortUrl(originalUrl: string): Promise<CreateUrlBodyResponse> {
+  async createShortUrl(originalUrl: string): Promise<UrlBodyResponse> {
     if (!validateUrl(originalUrl)) {
       return new Error('Invalid URL');
     }
@@ -55,6 +55,7 @@ export class URLShortenerService {
     const newEntry = {
       url: originalUrl,
       shortUrlId: shortUrlId,
+      shortUrl: `${baseUrl}/${shortUrlId}`,
       clicks: 0,
       createdAt: new Date(),
     };
@@ -67,10 +68,24 @@ export class URLShortenerService {
     };
   }
 
-  async decode(shortUrl: string): Promise<string | null> {
-    // const mapping = this.urlDatabase.get(shortUrl);
-    // return mapping ? mapping.originalUrl : null;
-    console.log(shortUrl);
+  async getGeneratedUrl(shortUrl: string): Promise<UrlBodyResponse | null> {
+    const mapping = await this.urlEntityRepository.findOne({
+      where: [{ shortUrlId: shortUrl }, { shortUrl: shortUrl }],
+    });
+    if (mapping) {
+      // Increment the click count
+      await this.urlEntityRepository.increment(
+        { shortUrlId: shortUrl },
+        'clicks',
+        1,
+      );
+      return {
+        url: mapping.url,
+        shortUrl: `${this.configService.get<string>('BASE_URL')}/${mapping.shortUrlId}`,
+        clicks: mapping.clicks,
+        statusCode: 200,
+      };
+    }
     return null;
   }
 }

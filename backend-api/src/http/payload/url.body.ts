@@ -5,4 +5,4 @@ export interface UrlResponseBody {
   statusCode: number;
 }
 
-export type CreateUrlBodyResponse = UrlResponseBody | Error;
+export type UrlBodyResponse = UrlResponseBody | Error;
