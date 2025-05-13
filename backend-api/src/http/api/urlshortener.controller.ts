@@ -5,7 +5,7 @@ import { Response } from 'express';
 
 @Controller()
 export class UrlShortenerController {
-  constructor(private readonly urlShortenerService: URLShortenerService) { }
+  constructor(private readonly urlShortenerService: URLShortenerService) {}
 
   @Post('/api/encode')
   async encode(@Body() body: { url: string }, @Res() res: Response) {
@@ -14,9 +14,7 @@ export class UrlShortenerController {
     if ('statusCode' in resp) {
       return res.status(resp.statusCode).json(resp);
     } else {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: 'An error occurred' });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(resp);
     }
   }
 

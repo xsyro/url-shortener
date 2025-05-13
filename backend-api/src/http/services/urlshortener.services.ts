@@ -75,7 +75,7 @@ export class URLShortenerService {
     };
   }
 
-  async getGeneratedUrl(shortUrl: string): Promise<UrlBodyResponse | null> {
+  async getGeneratedUrl(shortUrl: string): Promise<UrlBodyResponse | Error> {
     const mapping = await this.urlEntityRepository.findOne({
       where: [{ shortUrlId: shortUrl }, { shortUrl: shortUrl }],
     });
@@ -92,6 +92,6 @@ export class URLShortenerService {
         statusCode: 200,
       };
     }
-    return null;
+    return new Error('URL not found');
   }
 }
