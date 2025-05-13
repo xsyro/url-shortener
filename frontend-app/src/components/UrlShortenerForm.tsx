@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // import { Button } from "@/components/ui/button"
 
 const urlSchema = z.object({
-    fullUrl: z.string().url("Please enter a valid URL"),
+    url: z.string().url("Please enter a valid URL"),
 });
 
 type UrlFormData = z.infer<typeof urlSchema>;
@@ -17,7 +17,7 @@ const UrlShortenerForm: React.FC = () => {
 
     const onSubmit = async (data: UrlFormData) => {
         try {
-            const response = await fetch("/api/shorten-url", {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/encode`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -40,13 +40,13 @@ const UrlShortenerForm: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
             <div>
                 <input
-                    id="fullUrl"
+                    id="url"
                     type="text"
                     className="border-2 rounded-md"
-                    {...register("fullUrl")}
+                    {...register("url")}
                     placeholder="Enter the link here"
                 />
-                {errors.fullUrl && <p className="text-red-700 mb-3">{errors.fullUrl.message}</p>}
+                {errors.url && <p className="text-red-700 mb-3">{errors.url.message}</p>}
             </div>
             <button type="submit" className="btn-cta rounded-md">Shorten URL</button>
         </form>

@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(
 const routes = [
   {
     path: '/*',
-    element: <RootLayout><LandingPage /></RootLayout>,
+    element: <LandingPage />,
   }
 ]
 root.render(
@@ -23,7 +23,7 @@ root.render(
           <Route
             key={index}
             path={route.path}
-            element={route.element}
+            element={<RootLayout>{route.element}</RootLayout>}
           />
         ))}
       </Routes>
