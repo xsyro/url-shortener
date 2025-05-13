@@ -28,7 +28,7 @@ const UrlShortenerForm: React.FC = () => {
                     <div className="flex items-center space-x-2"></div>
                     <p className="space-x-1">
                         <code className="tracking-tighter text-sm text-green-700 font-bold">{shortUrlResponse.shortUrl}</code>
-                        <CopyButton />
+                        <CopyButton textToCopy={shortUrlResponse.shortUrl} />
                     </p>
 
                 </>

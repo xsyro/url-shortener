@@ -1,12 +1,16 @@
 import { useState } from "react";
 
-export const CopyButton = () => {
-    const [copied, setCopied] = useState(false);
+interface CopyButtonProps {
+    textToCopy: string;
+}
+
+export const CopyButton = ({ textToCopy }: CopyButtonProps) => {
+    const [_, setCopied] = useState(false);
     const [copyText, setCopyText] = useState('Copy');
     const [copyIcon, setCopyIcon] = useState('📋');
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(window.location.href);
+        navigator.clipboard.writeText(textToCopy);
         setCopied(true);
         setCopyText('Copied!');
         setCopyIcon('✅');
