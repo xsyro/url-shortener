@@ -38,7 +38,7 @@ export const decodeShortUrl = async (data: { shortUrl: string }): Promise<{ url:
     }
 }
 
-export const listShortUrls = async (page: number = 1, limit: number = 10): Promise<any> => {
+export const fetchShortUrls = async (page: number = 1, limit: number = 10): Promise<any> => {
     try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/list?page=${page}&limit=${limit}`, {
             method: "GET",

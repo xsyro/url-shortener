@@ -1,5 +1,3 @@
-// import heroImage from './illustration-working.svg'
-
 import UrlShortenerForm from "./UrlShortenerForm";
 
 export default function LandingPageHero() {
@@ -8,9 +6,9 @@ export default function LandingPageHero() {
             <div>
                 <h1 className="title text-center">Shorten your URL. Easy to share</h1>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-2">
                 <UrlShortenerForm />
-                <p className="subtitle">Shortening your URL makes it easier to share on social media, email, text messages and more. Try it out below and see for yourself.</p>
+                <p className="text-sm text-gray-500 text-wrap mt-2">Shortening your URL makes it easier to share on social media, email, text messages and more. <br />Try it out below and see for yourself.</p>
             </div>
         </div>
     </section>

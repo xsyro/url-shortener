@@ -2,54 +2,56 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { Button } from "@/components/ui/button"
+import { handlerUrlEncodeFormSubmit } from "../actions/Formhandler";
+import { useUrlShortener } from "../hooks/useUrlShortener";
 
 const urlSchema = z.object({
     url: z.string().url("Please enter a valid URL"),
 });
 
-type UrlFormData = z.infer<typeof urlSchema>;
+export type UrlFormData = z.infer<typeof urlSchema>;
 
 const UrlShortenerForm: React.FC = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<UrlFormData>({
         resolver: zodResolver(urlSchema),
     });
 
-    const onSubmit = async (data: UrlFormData) => {
-        try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/encode`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
+    const { createShortenedUrlMutation } = useUrlShortener();
 
-            if (!response.ok) {
-                throw new Error("Failed to shorten URL");
-            }
-
-            const result = await response.json();
-            console.log("Shortened URL:", result.shortUrl);
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    };
+    const { error, isError, isPending, isSuccess, data: shortUrlResponse, mutateAsync: createShortUrlAction } = createShortenedUrlMutation
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-                <input
-                    id="url"
-                    type="text"
-                    className="border-2 rounded-md"
-                    {...register("url")}
-                    placeholder="Enter the link here"
-                />
-                {errors.url && <p className="text-red-700 mb-3">{errors.url.message}</p>}
-            </div>
-            <button type="submit" className="btn-cta rounded-md">Shorten URL</button>
-        </form>
+        <>
+            {isPending && <p className="text-green-700 mb-2 mt-1">Shortening URL...</p>}
+
+            {shortUrlResponse && !(shortUrlResponse instanceof Error) && (
+                <>
+                    <div className="flex items-center space-x-2"></div>
+                    <p className="space-x-1">
+                        <code className="tracking-tighter text-sm text-green-700 font-bold">{shortUrlResponse.shortUrl}</code>
+                        <button onClick={() => navigator.clipboard.writeText(shortUrlResponse.shortUrl)} className="bg-green-600 text-white px-2 py-1 text-xs rounded-sm font-semibold hover:bg-green-800">
+                            Copy
+                        </button>
+                    </p>
+
+                </>
+            )}
+
+            <form onSubmit={handleSubmit(async (data) => await createShortUrlAction(data))}>
+                <div>
+                    <input
+                        id="url"
+                        type="url"
+                        className="border-2 rounded-md"
+                        {...register("url")}
+                        placeholder="Enter the link here"
+                    />
+                    {errors.url && <p className="text-red-700 mb-3 mt-1">{errors.url.message}</p>}
+                    {(isError || error) && <p className="text-red-700 mb-3 mt-1">{error.message}</p>}
+                </div>
+                <button type="submit" className="bg-black text-white p-4 rounded-md">Shorten URL</button>
+            </form>
+        </>
     );
 };
 
