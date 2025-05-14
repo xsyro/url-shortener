@@ -5,6 +5,19 @@ networks:
     driver: bridge
 
 services:
+  db:
+      image: postgres:15-alpine
+      restart: always
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: urlshortener
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      ports:
+        - "5432:5432"
+      networks:
+        - url-shortener
   backend:
     build:
       context: ./backend-api
@@ -39,18 +52,5 @@ services:
   #     - REACT_APP_API_URL=http://localhost:8080
   #   networks:
   #     - url-shortener
-  db:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: urlshortener
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - url-shortener
 volumes:
   postgres_data:
