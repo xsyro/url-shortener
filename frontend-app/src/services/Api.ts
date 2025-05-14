@@ -1,6 +1,7 @@
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 export const encodeShortUrl = async (data: { url: string }): Promise<{ url: string; shortUrl: string; statusCode: number } | Error> => {
     try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/encode`, {
+        const response = await fetch(`${API_URL}/api/encode`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -20,7 +21,7 @@ export const encodeShortUrl = async (data: { url: string }): Promise<{ url: stri
 
 export const decodeShortUrl = async (data: { shortUrl: string }): Promise<{ url: string } | Error> => {
     try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/decode`, {
+        const response = await fetch(`${API_URL}/api/decode`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -40,7 +41,7 @@ export const decodeShortUrl = async (data: { shortUrl: string }): Promise<{ url:
 
 export const fetchShortUrls = async (page: number = 1, limit: number = 10): Promise<any[] | Error> => {
     try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/list?page=${page}&limit=${limit}`, {
+        const response = await fetch(`${API_URL}/api/list?page=${page}&limit=${limit}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

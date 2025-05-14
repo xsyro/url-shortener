@@ -20,6 +20,7 @@ Ensure you have the following installed on your system:
    ```bash
    git clone https://github.com/xsyro/url-shortener.git
    cd url-shortener-app
+   docker-compose up --build
 2. **Build and Start the Services**
     Use Docker Compose to build and start all services:
     This will:
@@ -43,10 +44,6 @@ Ensure you have the following installed on your system:
 2. Run the tests using Docker: 
     ```bash
     docker-compose run backend npm run test
-**Frontend Tests**
-1. Open a terminal and navigate to the frontend-app directory:
-    ```bash
-    docker-compose run frontend npm run test
 ## Additional Notes
 - **Environment Variables:**
 The application uses .env files for configuration. Ensure the .env files are correctly set up in the `backend-api` and `frontend-app` directories.

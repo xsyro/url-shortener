@@ -5,7 +5,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN npm ci
-# RUN npm install pg --save
+# ensuring jest is available for testing
+RUN npx jest --version || exit 1
 
 COPY . .
 
