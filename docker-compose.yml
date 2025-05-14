@@ -9,46 +9,36 @@ services:
     build:
       context: ./backend-api
       dockerfile: Dockerfile
+      target: production
     depends_on:
       - db
-      - redis
     ports:
       - "8080:8080"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
+      - OPENSSL_CONF=/etc/ssl/
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USERNAME=postgres
       - DB_PASSWORD=password
       - DB_NAME=urlshortener
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - BASE_URL=http://localhost:8080
     networks:
       - url-shortener
-    volumes:
-      - ./backend-api:/app
-  frontend:
-    build:
-      context: ./frontend-app
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    # volumes:
-      # - .:/app
-      # - /app/node_modules
-    depends_on:
-      - backend
-    environment:
-      - NODE_ENV=production
-      - WATCHPACK_POLLING=true
-    networks:
-      - url-shortener
-  redis:
-    image: redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+  # frontend:
+  #   build:
+  #     context: ./frontend-app
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     - NODE_ENV=development
+  #     - REACT_APP_API_URL=http://localhost:8080
+  #   networks:
+  #     - url-shortener
   db:
     image: postgres:15-alpine
     restart: always
@@ -56,7 +46,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: urlshortener
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - url-shortener
+volumes:
+  postgres_data:

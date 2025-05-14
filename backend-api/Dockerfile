@@ -1,17 +1,30 @@
-FROM node:18-alpine
+FROM node:20-alpine AS build
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-RUN apk add --no-cache openssl nodejs npm
+COPY package*.json ./
 
-COPY package.json /app/
-
-RUN npm install
+RUN npm ci
+RUN npm install pg --save
 
 COPY . .
 
 RUN npm run build
 
-EXPOSE 8080
+RUN npm prune --production
 
-CMD ["npm", "run", "start:dev"]
+
+FROM node:20-alpine AS production
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+COPY --from=build /usr/src/app/dist ./dist
+COPY --from=build /usr/src/app/node_modules ./node_modules
+
+ENV NODE_ENV production
+
+EXPOSE 3000
+
+CMD ["node", "dist/main"]
